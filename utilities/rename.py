@@ -16,6 +16,8 @@ def get_date_str(filename):
 
 
 def rename_files(filenames, create_dirs=False):
+    num_total = len(filenames)
+    num_current = 0
     for file_path in filenames:
         try:
             original_file_path = file_path
@@ -37,17 +39,21 @@ def rename_files(filenames, create_dirs=False):
                     date_str_to_write = date_str
                 if name_suffix_n > 0:
                     date_str_to_write = date_str_to_write + "_" + str(name_suffix_n)
+
                 new_file_path_str = original_file_path_str.replace(original_filename, date_str_to_write)
                 try:
-                    os.makedirs(os.path.dirname(new_file_path_str), exist_ok=True)
+                    if create_dirs:
+                        os.makedirs(os.path.dirname(new_file_path_str), exist_ok=True)
                     os.rename(original_file_path_str, new_file_path_str)
-                    logging.info(str(file_path) + "\t-->\t" + new_file_path_str)
+                    logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t" + new_file_path_str)
                 except:
+                    logging.exception("")
                     name_suffix_n += 1
                     continue
                 break
         except:
-            logging.warning(str(file_path) + "\t-->\t <skipping>")
+            logging.warning("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
+        num_current = num_current + 1
 
 
 if __name__ == "__main__":
