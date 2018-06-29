@@ -12,14 +12,14 @@ def get_date_str(filename):
     date_str = str(tags["Image DateTime"])
 
     date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
-    return date.strftime("%Y%m%d_%H%M%S")
+    return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
 
 
-def rename_files(filenames):
+def rename_files(filenames, create_dirs=False):
     for file_path in filenames:
         try:
             original_file_path = file_path
-            date_str = get_date_str(original_file_path)
+            (date_str, dir_str) = get_date_str(original_file_path)
             original_file_path_str = file_path
             new_file_path_str = original_file_path_str
 
@@ -30,11 +30,16 @@ def rename_files(filenames):
 
             name_suffix_n = 0
             while True:
-                date_str_to_write = date_str
+                date_str_to_write = ""
+                if create_dirs:
+                    date_str_to_write = str(os.path.join(dir_str, date_str))
+                else:
+                    date_str_to_write = date_str
                 if name_suffix_n > 0:
-                    date_str_to_write = date_str + "_" + str(name_suffix_n)
+                    date_str_to_write = date_str_to_write + "_" + str(name_suffix_n)
                 new_file_path_str = original_file_path_str.replace(original_filename, date_str_to_write)
                 try:
+                    os.makedirs(os.path.dirname(new_file_path_str), exist_ok=True)
                     os.rename(original_file_path_str, new_file_path_str)
                     logging.info(str(file_path) + "\t-->\t" + new_file_path_str)
                 except:
@@ -56,4 +61,7 @@ if __name__ == "__main__":
 
     exifread.logger.disabled = True
 
-    rename_files(sys.argv[1:])
+    if(sys.argv[1] == "--dirs"):
+        rename_files(sys.argv[2:], True)
+    else:
+        rename_files(sys.argv[1:], False)
