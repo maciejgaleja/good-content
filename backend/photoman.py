@@ -60,12 +60,13 @@ def get_file_list(start_dir, extensions, recursive=False):
 
 def main():
     arg_parser = argparse.ArgumentParser(description="Rename images so that new name is its date/time taken.")
-    arg_parser.add_argument("-v", "--verbose", action="store_true", help="Be verbose")
-    arg_parser.add_argument("-C", "--directory", nargs=1, default=".", required=False, help="Specify a working directory.", metavar="directory")
-    arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False, help="Specify file extensions.", metavar="extensions")
-    arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="Find images recursively")
-    # arg_parser.add_argument("-o", "--output", default=".", help="Specify output directory", metavar="directory")
-    arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="Create separate directiories for each day and camera")
+    arg_parser.prog = "mmm"
+    arg_parser.add_argument("-v", "--verbose", action="store_true", help="be verbose")
+    arg_parser.add_argument("-C", "--directory", nargs=1, default=".", required=False, help="specify a working directory.", metavar="directory")
+    arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False, help="specify file extensions.", metavar="extensions", default="")
+    arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="find images recursively")
+    # arg_parser.add_argument("-o", "--output", default=".", help="specify output directory", metavar="directory")
+    arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="create separate directiories for each day and camera")
 
     args = arg_parser.parse_args()
 

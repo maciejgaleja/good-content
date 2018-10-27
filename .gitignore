@@ -1,1 +1,3 @@
 backend/utilities/__pycache__/
+launcher/
+*.pyc
