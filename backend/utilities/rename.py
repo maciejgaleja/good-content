@@ -5,6 +5,7 @@ from datetime import datetime
 import pathlib
 import os
 
+exifread.logger.disabled = True
 
 def get_date_str(filename):
     f = open(filename, "rb")
@@ -67,8 +68,6 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(message)s")
     ch.setFormatter(formatter)
     root.addHandler(ch)
-
-    exifread.logger.disabled = True
 
     if(sys.argv[1] == "--dirs"):
         rename_files(sys.argv[2:], True)
