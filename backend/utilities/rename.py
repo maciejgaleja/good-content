@@ -9,10 +9,12 @@ import os
 def get_date_str(filename):
     f = open(filename, "rb")
     tags = exifread.process_file(f)
-    date_str = str(tags["Image DateTime"])
+    date_str = str(tags["EXIF DateTimeOriginal"])
+
+    model_name = str(tags["Image Model"]).replace(" ", "_")
 
     date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
-    return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
+    return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
 
 
 def rename_files(filenames, create_dirs=False):
@@ -28,6 +30,7 @@ def rename_files(filenames, create_dirs=False):
             original_file_path = pathlib.PurePath(file_path)
             original_filename = original_file_path.name
             extension = str(original_file_path.suffix)
+            original_file_path_str = original_file_path_str.replace(extension, extension.upper())
             original_filename = original_filename.replace(extension, '')
 
             name_suffix_n = 0
@@ -47,12 +50,12 @@ def rename_files(filenames, create_dirs=False):
                     os.rename(original_file_path_str, new_file_path_str)
                     logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t" + new_file_path_str)
                 except:
-                    logging.exception("")
                     name_suffix_n += 1
                     continue
                 break
         except:
             logging.warning("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
+            logging.exception("ERROR")
         num_current = num_current + 1
 
 
