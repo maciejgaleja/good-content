@@ -17,9 +17,16 @@ def get_date_str(filename):
     tags = exifread.process_file(f)
     date_str = str(tags["EXIF DateTimeOriginal"])
 
-    model_name = str(tags["Image Model"]).replace(" ", "_")
+    model_name = str(tags["Image Model"])
+    model_name = model_name.replace(" ", "_")
+    model_name = model_name.replace("<", "")
+    model_name = model_name.replace(">", "")
 
-    date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
+    try:
+        date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
+    except ValueError:
+        date = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
+        
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
 
 
