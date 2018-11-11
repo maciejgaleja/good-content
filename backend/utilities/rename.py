@@ -21,6 +21,8 @@ def get_date_str(filename):
     model_name = model_name.replace(" ", "_")
     model_name = model_name.replace("<", "")
     model_name = model_name.replace(">", "")
+    model_name = model_name.replace("\\", "")
+    model_name = model_name.replace("/", "")
 
     try:
         date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
