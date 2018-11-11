@@ -12,7 +12,7 @@ def setup_logging(verbose=True):
     if(verbose):
         ch.setLevel(logging.DEBUG)
     else:
-        ch.setLevel(logging.WARNING)
+        ch.setLevel(logging.INFO)
     formatter = logging.Formatter('%(message)s')
     ch.setFormatter(formatter)
     root.addHandler(ch)
@@ -37,10 +37,10 @@ def filter_by_extension(input, extensions):
 def get_file_list(start_dir, extensions, recursive=False):
     full_dir = os.path.realpath(start_dir)
     full_extensions = format_extensions(extensions)
-    logging.info("Getting file list:")
-    logging.info("\troot directory: {0}".format(full_dir))
-    logging.info("\tsearching extensions: {0}".format(" ".join(full_extensions)))
-    logging.info("\trecursive: {0}".format(recursive))
+    logging.debug("Getting file list:")
+    logging.debug("\troot directory: {0}".format(full_dir))
+    logging.debug("\tsearching extensions: {0}".format(" ".join(full_extensions)))
+    logging.debug("\trecursive: {0}".format(recursive))
 
     all_candidates = []
 
@@ -60,12 +60,14 @@ def get_file_list(start_dir, extensions, recursive=False):
 
 def main():
     arg_parser = argparse.ArgumentParser(description="Rename images so that new name is its date/time taken.")
-    arg_parser.add_argument("-v", "--verbose", action="store_true", help="Be verbose")
-    arg_parser.add_argument("-C", "--directory", nargs=1, default=".", required=False, help="Specify a working directory.", metavar="directory")
-    arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False, help="Specify file extensions.", metavar="extensions")
-    arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="Find images recursively")
-    # arg_parser.add_argument("-o", "--output", default=".", help="Specify output directory", metavar="directory")
-    arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="Create separate directiories for each day and camera")
+    arg_parser.prog = "mmm"
+    arg_parser.add_argument("-v", "--verbose", action="store_true", help="be verbose")
+    arg_parser.add_argument("-C", "--directory", nargs=1, default=".", required=False, help="specify a working directory.", metavar="directory")
+    arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False, help="specify file extensions.", metavar="extensions", default=[])
+    arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="find images recursively")
+    arg_parser.add_argument("-o", "--output", default=".", help="specify output directory", metavar="directory")
+    arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="create separate directiories for each day and camera")
+    arg_parser.add_argument("-d", "--remove-duplicates", action="store_true", help="if a file is considered a duplicate, it will be deleted")
 
     args = arg_parser.parse_args()
 
@@ -83,8 +85,9 @@ def main():
             extensions_list.append(extension)
     
     files = get_file_list(args.directory, extensions_list, recursive=args.recursive)
-
-    utilities.rename.rename_files(files, args.create_dirs)
+    
+    output_path = os.path.join(os.path.realpath(args.output), "")
+    utilities.rename.rename_files(files, output_path, args.create_dirs, args.remove_duplicates)
     return
     
 
