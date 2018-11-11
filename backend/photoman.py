@@ -12,7 +12,7 @@ def setup_logging(verbose=True):
     if(verbose):
         ch.setLevel(logging.DEBUG)
     else:
-        ch.setLevel(logging.WARNING)
+        ch.setLevel(logging.INFO)
     formatter = logging.Formatter('%(message)s')
     ch.setFormatter(formatter)
     root.addHandler(ch)
@@ -37,10 +37,10 @@ def filter_by_extension(input, extensions):
 def get_file_list(start_dir, extensions, recursive=False):
     full_dir = os.path.realpath(start_dir)
     full_extensions = format_extensions(extensions)
-    logging.info("Getting file list:")
-    logging.info("\troot directory: {0}".format(full_dir))
-    logging.info("\tsearching extensions: {0}".format(" ".join(full_extensions)))
-    logging.info("\trecursive: {0}".format(recursive))
+    logging.debug("Getting file list:")
+    logging.debug("\troot directory: {0}".format(full_dir))
+    logging.debug("\tsearching extensions: {0}".format(" ".join(full_extensions)))
+    logging.debug("\trecursive: {0}".format(recursive))
 
     all_candidates = []
 
@@ -67,6 +67,7 @@ def main():
     arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="find images recursively")
     arg_parser.add_argument("-o", "--output", default=".", help="specify output directory", metavar="directory")
     arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="create separate directiories for each day and camera")
+    arg_parser.add_argument("-d", "--remove-duplicates", action="store_true", help="if a file is considered a duplicate, it will be deleted")
 
     args = arg_parser.parse_args()
 
@@ -83,12 +84,10 @@ def main():
         if(len(extension) > 0):
             extensions_list.append(extension)
     
-    print(os.path.realpath(args.output))
-
     files = get_file_list(args.directory, extensions_list, recursive=args.recursive)
     
     output_path = os.path.join(os.path.realpath(args.output), "")
-    utilities.rename.rename_files(files, output_path, args.create_dirs)
+    utilities.rename.rename_files(files, output_path, args.create_dirs, args.remove_duplicates)
     return
     
 

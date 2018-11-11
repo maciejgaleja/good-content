@@ -5,8 +5,12 @@ from datetime import datetime
 import pathlib
 import os
 import shutil
+import filecmp
 
 exifread.logger.disabled = True
+
+class FileIsADuplicate(Exception):
+    pass
 
 def get_date_str(filename):
     f = open(filename, "rb")
@@ -29,9 +33,15 @@ def move_file(oldname, newname, create_dirs):
         except OSError:
             shutil.move(oldname, newname)
     else:
-        raise FileExistsError()
+        files_identical = filecmp.cmp(oldname, newname, shallow=False)
+        if files_identical:
+            logging.warning("File {} is a duplicate.".format(oldname))
+            raise FileIsADuplicate()
+        else:
+            raise FileExistsError()
 
-def rename_files(filenames, output_dir, create_dirs=False):
+
+def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False):
     num_total = len(filenames)
     num_current = 0
     for file_path in filenames:
@@ -61,9 +71,13 @@ def rename_files(filenames, output_dir, create_dirs=False):
                 try:
                     move_file(original_file_path_str, new_file_path_str, create_dirs)                
                     logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(original_file_path_str) + "\t-->\t" + new_file_path_str)
-                except:
+                except FileExistsError:
                     name_suffix_n += 1
                     continue
+                except FileIsADuplicate:
+                    if remove_duplicates:
+                        logging.error("deleting {} ...".format(original_file_path_str))
+                        os.remove(original_file_path_str)
                 break
         except:
             logging.warning("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
