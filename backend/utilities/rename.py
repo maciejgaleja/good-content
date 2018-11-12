@@ -17,7 +17,10 @@ def get_date_str(filename):
     tags = exifread.process_file(f)
     date_str = str(tags["EXIF DateTimeOriginal"])
 
-    model_name = str(tags["Image Model"])
+    try:
+        model_name = str(tags["Image Model"])
+    except KeyError:
+        model_name = "UNKNOWN"
     model_name = model_name.replace(" ", "_")
     model_name = model_name.replace("<", "")
     model_name = model_name.replace(">", "")
