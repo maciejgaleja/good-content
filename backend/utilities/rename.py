@@ -27,7 +27,10 @@ def get_date_str(filename):
     try:
         date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
     except ValueError:
-        date = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
+        try:
+            date = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
+        except ValueError:
+            date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S ")
         
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
 
