@@ -15,17 +15,28 @@ class FileIsADuplicate(Exception):
 def get_date_str(filename):
     f = open(filename, "rb")
     tags = exifread.process_file(f)
-    date_str = str(tags["EXIF DateTimeOriginal"])
+    try:
+        date_str = str(tags["EXIF DateTimeOriginal"])
+    except KeyError:
+        date_str = "1970:01:01 00:00:00"
 
-    model_name = str(tags["Image Model"])
+    try:
+        model_name = str(tags["Image Model"])
+    except KeyError:
+        model_name = "UNKNOWN"
     model_name = model_name.replace(" ", "_")
     model_name = model_name.replace("<", "")
     model_name = model_name.replace(">", "")
+    model_name = model_name.replace("\\", "")
+    model_name = model_name.replace("/", "")
 
     try:
         date = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
     except ValueError:
-        date = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
+        try:
+            date = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
+        except ValueError:
+            date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S ")
         
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
 
@@ -74,7 +85,7 @@ def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=Fal
                 if name_suffix_n > 0:
                     date_str_to_write = date_str_to_write + "_" + str(name_suffix_n)
 
-                new_file_path_str = output_dir + date_str_to_write + extension
+                new_file_path_str = output_dir + date_str_to_write + extension.upper()
                 try:
                     move_file(original_file_path_str, new_file_path_str, create_dirs)                
                     logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(original_file_path_str) + "\t-->\t" + new_file_path_str)
