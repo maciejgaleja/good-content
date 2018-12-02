@@ -9,6 +9,7 @@ import filecmp
 import subprocess
 
 exifread.logger.disabled = True
+date_str_default = "1970:01:01 00:00:00"
 
 class FileIsADuplicate(Exception):
     pass
@@ -32,15 +33,18 @@ def get_date_str(filename):
     return ret
 
 def get_date_str_video(filename):
-    ffprobe_out = subprocess.run(["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    ffprobe_str = ffprobe_out.stdout.decode("utf-8") + "\n" + ffprobe_out.stderr.decode("utf-8")
-    ffprobe_lines = ffprobe_str.split("\n")
-    dates = []
-    for line in ffprobe_lines:
-        if "creation_time" in line:
-            dates.append(":".join(line.split(":")[1:]).strip())
+    try:
+        ffprobe_out = subprocess.run(["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ffprobe_str = ffprobe_out.stdout.decode("utf-8") + "\n" + ffprobe_out.stderr.decode("utf-8")
+        ffprobe_lines = ffprobe_str.split("\n")
+        dates = []
+        for line in ffprobe_lines:
+            if "creation_time" in line:
+                dates.append(":".join(line.split(":")[1:]).strip())
 
-    date_str = dates[0]
+        date_str = dates[0]
+    except:
+        date_str = date_str_default
 
     date = parse_date_str(date_str)
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-video")
@@ -51,7 +55,7 @@ def get_date_str_image(filename):
     try:
         date_str = str(tags["EXIF DateTimeOriginal"])
     except KeyError:
-        date_str = "1970:01:01 00:00:00"
+        date_str = date_str_default
 
     try:
         model_name = str(tags["Image Model"])
@@ -64,26 +68,27 @@ def get_date_str_image(filename):
     model_name = model_name.replace("/", "")
 
     date = parse_date_str(date_str)
-        
+
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
 
 
 def move_file(oldname, newname, create_dirs):
     if create_dirs:
         os.makedirs(os.path.dirname(newname), exist_ok=True)
-        
+
     if not os.path.exists(newname):
         try:
             os.rename(oldname, newname)
         except OSError:
             shutil.move(oldname, newname)
     else:
-        files_identical = filecmp.cmp(oldname, newname, shallow=False)
-        if files_identical:
-            logging.warning("File {} is a duplicate.".format(oldname))
-            raise FileIsADuplicate()
-        else:
-            raise FileExistsError()
+        if not (oldname == newname):
+            files_identical = filecmp.cmp(oldname, newname, shallow=False)
+            if files_identical:
+                logging.warning("File {} is a duplicate.".format(oldname))
+                raise FileIsADuplicate()
+            else:
+                raise FileExistsError()
 
 
 def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False):
@@ -114,7 +119,7 @@ def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=Fal
 
                 new_file_path_str = output_dir + date_str_to_write + extension.upper()
                 try:
-                    move_file(original_file_path_str, new_file_path_str, create_dirs)                
+                    move_file(original_file_path_str, new_file_path_str, create_dirs)
                     logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(original_file_path_str) + "\t-->\t" + new_file_path_str)
                 except FileExistsError:
                     name_suffix_n += 1

@@ -32,7 +32,7 @@ def filter_by_extension(input, extensions):
         if file.endswith(tuple(extensions)):
             output.append(os.path.realpath(file))
     return output
-    
+
 
 def get_file_list(start_dir, extensions, recursive=False):
     full_dir = os.path.realpath(start_dir)
@@ -52,7 +52,7 @@ def get_file_list(start_dir, extensions, recursive=False):
                 all_candidates.append(os.path.join(root, name))
     else:
         all_candidates = os.listdir(full_dir)
-            
+
 
     files = filter_by_extension(all_candidates, full_extensions)
     logging.debug("\tFound files:\n\t\t{0}".format("\n\t\t".join(files)))
@@ -83,13 +83,13 @@ def main():
     for extension in extensions_list_all:
         if(len(extension) > 0):
             extensions_list.append(extension)
-    
-    files = get_file_list(args.directory, extensions_list, recursive=args.recursive)
-    
+
+    files = get_file_list(args.directory[0], extensions_list, recursive=args.recursive)
+
     output_path = os.path.join(os.path.realpath(args.output), "")
     utilities.rename.rename_files(files, output_path, args.create_dirs, args.remove_duplicates)
     return
-    
+
 
 
 
