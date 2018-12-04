@@ -78,8 +78,9 @@ def get_date_str_image(filename):
 
 
 def move_file(oldname, newname, create_dirs):
-    if create_dirs:
-        os.makedirs(os.path.dirname(newname), exist_ok=True)
+    os.makedirs(os.path.dirname(newname), exist_ok=True)
+
+    logging.debug("Will move file {0} to {1}".format(oldname, newname))
 
     if not os.path.exists(newname):
         try:
@@ -109,7 +110,6 @@ def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=Fal
             original_file_path = pathlib.PurePath(file_path)
             original_filename = original_file_path.name
             extension = str(original_file_path.suffix)
-            original_file_path_str = original_file_path_str.replace(extension, extension.upper())
             original_filename = original_filename.replace(extension, '')
 
             name_suffix_n = 0

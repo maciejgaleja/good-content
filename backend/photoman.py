@@ -51,25 +51,27 @@ def get_file_list(start_dir, extensions, recursive=False):
             for name in dirs:
                 all_candidates.append(os.path.join(root, name))
     else:
-        all_candidates = os.listdir(full_dir)
+        candinates = os.listdir(full_dir)
+        for candidate in candinates:
+            all_candidates.append(os.path.join(full_dir, candidate))
 
 
     files = filter_by_extension(all_candidates, full_extensions)
     logging.debug("\tFound files:\n\t\t{0}".format("\n\t\t".join(files)))
     return files
 
-def main():
+def main(argv):
     arg_parser = argparse.ArgumentParser(description="Rename images so that new name is its date/time taken.")
     arg_parser.prog = "mmm"
     arg_parser.add_argument("-v", "--verbose", action="store_true", help="be verbose")
     arg_parser.add_argument("-C", "--directory", nargs=1, default=".", required=False, help="specify a working directory.", metavar="directory")
     arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False, help="specify file extensions.", metavar="extensions", default=[])
     arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="find images recursively")
-    arg_parser.add_argument("-o", "--output", default=".", help="specify output directory", metavar="directory")
+    arg_parser.add_argument("-o", "--output", help="specify output directory", metavar="directory")
     arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="create separate directiories for each day and camera")
     arg_parser.add_argument("-d", "--remove-duplicates", action="store_true", help="if a file is considered a duplicate, it will be deleted")
 
-    args = arg_parser.parse_args()
+    args = arg_parser.parse_args(args=argv)
 
     setup_logging(args.verbose)
 
@@ -84,6 +86,8 @@ def main():
         if(len(extension) > 0):
             extensions_list.append(extension)
 
+    if(args.output == None):
+        args.output = args.directory[0]
     files = get_file_list(args.directory[0], extensions_list, recursive=args.recursive)
 
     output_path = os.path.join(os.path.realpath(args.output), "")
@@ -94,4 +98,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)

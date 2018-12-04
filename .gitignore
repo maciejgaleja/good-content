@@ -3,3 +3,4 @@ launcher/
 *.pyc
 backend/build/
 backend/dist/mmm.exe
+test/
