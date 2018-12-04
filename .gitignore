@@ -1,3 +1,5 @@
 backend/utilities/__pycache__/
 launcher/
 *.pyc
+backend/build/
+backend/dist/mmm.exe
