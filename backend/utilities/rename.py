@@ -28,7 +28,12 @@ def parse_date_str(date_str):
 def get_date_str(filename):
     if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
         ret = get_date_str_image(filename)
-    if(filename.upper().endswith(".AVI") or filename.upper().endswith(".MP4") or filename.upper().endswith(".MOV") or filename.upper().endswith(".3GP") or filename.upper().endswith(".M4V")):
+    if(filename.upper().endswith(".AVI")
+        or filename.upper().endswith(".MP4")
+        or filename.upper().endswith(".MOV")
+        or filename.upper().endswith(".3GP")
+        or filename.upper().endswith(".M4V")
+        or filename.upper().endswith(".MPG")):
         ret = get_date_str_video(filename)
     return ret
 
