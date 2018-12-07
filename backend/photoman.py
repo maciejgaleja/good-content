@@ -106,11 +106,11 @@ def main(argv):
     try:
         utilities.rename.rename_files(
             files, output_path, args.create_dirs, args.remove_duplicates)
-    except utilities.rename.FFMpegNotFound:
+    except utilities.rename.FFMpegNotFound:  # pragma: no cover
         logging.error("Could not find ffprobe.")
 
     return
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main(sys.argv)

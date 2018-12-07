@@ -50,7 +50,7 @@ def get_date_str_video(filename):
     try:
         ffprobe_out = subprocess.run(
             ["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except FileNotFoundError:
+    except FileNotFoundError:  # pragma: no cover
         raise FFMpegNotFound
 
     try:
@@ -101,7 +101,7 @@ def move_file(oldname, newname, create_dirs):
     if not os.path.exists(newname):
         try:
             os.rename(oldname, newname)
-        except OSError:
+        except OSError:  # pragma: no cover
             shutil.move(oldname, newname)
     else:
         if not (oldname == newname):
@@ -154,11 +154,11 @@ def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=Fal
                             original_file_path_str))
                         os.remove(original_file_path_str)
                 break
-        except KeyboardInterrupt:
+        except KeyboardInterrupt:  # pragma: no cover
             raise
-        except FFMpegNotFound:
-            raise
-        except:
+        except FFMpegNotFound as e:  # pragma: no cover
+            raise e
+        except:  # pragma: no cover
             logging.warning("{:3.0f}".format(
                 num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
             logging.exception("ERROR")
