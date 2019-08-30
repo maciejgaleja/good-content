@@ -1,8 +1,10 @@
+import argparse
 import logging
 import sys
-from . import utilities
 import os
-import argparse
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(
+    os.path.realpath(__file__)))+os.sep+"backend"+os.sep)
 
 
 def setup_logging(verbose=True):
@@ -63,6 +65,10 @@ def get_file_list(start_dir, extensions, recursive=False):
 
 
 def main(argv):
+    import backend
+    import backend.photoman as photoman
+    import backend.utilities as utilities
+    import backend.version as version
     arg_parser = argparse.ArgumentParser(
         description="Rename images so that new name is its date/time taken.")
     arg_parser.prog = "mmm"
@@ -80,6 +86,8 @@ def main(argv):
                             help="create separate directiories for each day and camera")
     arg_parser.add_argument("-d", "--remove-duplicates", action="store_true",
                             help="if a file is considered a duplicate, it will be deleted")
+
+    print("mmm v" + version.version)
 
     args = arg_parser.parse_args(args=argv)
 
@@ -113,4 +121,4 @@ def main(argv):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main(sys.argv)
+    main(sys.argv[1:])
