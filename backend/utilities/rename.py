@@ -33,9 +33,9 @@ def parse_date_str(date_str):
     return date
 
 
-def get_date_str(filename):
+def get_date_str(filename, use_short_name):
     if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
-        ret = get_date_str_image(filename)
+        ret = get_date_str_image(filename, use_short_name)
     if(filename.upper().endswith(".AVI")
             or filename.upper().endswith(".MP4")
             or filename.upper().endswith(".MOV")
@@ -70,7 +70,7 @@ def get_date_str_video(filename):
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-video")
 
 
-def get_date_str_image(filename):
+def get_date_str_image(filename, use_short_name):
     f = open(filename, "rb")
     tags = exifread.process_file(f)
     try:
@@ -90,7 +90,12 @@ def get_date_str_image(filename):
 
     date = parse_date_str(date_str)
 
-    return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
+    if use_short_name:
+        ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
+    else:
+        ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
+
+    return ret
 
 
 def move_file(oldname, newname, create_dirs):
@@ -113,13 +118,13 @@ def move_file(oldname, newname, create_dirs):
                 raise FileExistsError()
 
 
-def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False):
+def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False, short_dir_names=False):
     num_total = len(filenames)
     num_current = 0
     for file_path in filenames:
         try:
             original_file_path = file_path
-            (date_str, dir_str) = get_date_str(original_file_path)
+            (date_str, dir_str) = get_date_str(original_file_path, short_dir_names)
             original_file_path_str = file_path
             new_file_path_str = output_dir
 

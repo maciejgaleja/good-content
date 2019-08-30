@@ -86,6 +86,8 @@ def main(argv):
                             help="create separate directiories for each day and camera")
     arg_parser.add_argument("-d", "--remove-duplicates", action="store_true",
                             help="if a file is considered a duplicate, it will be deleted")
+    arg_parser.add_argument("-s", "--short", action="store_true",
+                            help="use short directory names (date only)")
 
     print("mmm v" + version.version)
 
@@ -113,7 +115,7 @@ def main(argv):
 
     try:
         utilities.rename.rename_files(
-            files, output_path, args.create_dirs, args.remove_duplicates)
+            files, output_path, args.create_dirs, args.remove_duplicates, args.short)
     except utilities.rename.FFMpegNotFound:  # pragma: no cover
         logging.error("Could not find ffprobe.")
 
