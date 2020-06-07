@@ -1,12 +1,13 @@
 import logging
 import sys
-import exifread
+import exifread # type: ignore
 from datetime import datetime
 import pathlib
 import os
 import shutil
 import filecmp
 import subprocess
+from typing import Optional, Tuple, List
 
 exifread.logger.disabled = True
 date_str_default = "1970:01:01 00:00:00"
@@ -20,7 +21,11 @@ class FFMpegNotFound(Exception):
     pass
 
 
-def parse_date_str(date_str):
+class InvalidDateFormat(Exception):
+    pass
+
+
+def parse_date_str(date_str: str) -> datetime:
     date_formats = ["%Y:%m:%d %H:%M:%S", "%d/%m/%Y %H:%M",
                     "%Y-%m-%d %H:%M:%S ", "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S.%fZ"]
     date = None
@@ -30,10 +35,12 @@ def parse_date_str(date_str):
             break
         except ValueError:
             continue
+    if date is None:
+        raise InvalidDateFormat
     return date
 
 
-def get_date_str(filename, use_short_name):
+def get_date_str(filename: str, use_short_name: bool)-> Tuple[str, str]:
     if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
         ret = get_date_str_image(filename, use_short_name)
     if(filename.upper().endswith(".AVI")
@@ -46,7 +53,7 @@ def get_date_str(filename, use_short_name):
     return ret
 
 
-def get_date_str_video(filename):
+def get_date_str_video(filename: str) -> Tuple[str,str]:
     try:
         ffprobe_out = subprocess.run(
             ["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -70,7 +77,7 @@ def get_date_str_video(filename):
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-video")
 
 
-def get_date_str_image(filename, use_short_name):
+def get_date_str_image(filename: str, use_short_name: bool) -> Tuple[str, str]:
     f = open(filename, "rb")
     tags = exifread.process_file(f)
     try:
@@ -98,7 +105,7 @@ def get_date_str_image(filename, use_short_name):
     return ret
 
 
-def move_file(oldname, newname, create_dirs):
+def move_file(oldname: str, newname: str, create_dirs: bool) -> None:
     os.makedirs(os.path.dirname(newname), exist_ok=True)
 
     logging.debug("Will move file {0} to {1}".format(oldname, newname))
@@ -118,14 +125,13 @@ def move_file(oldname, newname, create_dirs):
                 raise FileExistsError()
 
 
-def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False, short_dir_names=False):
+def rename_files(filenames: List[str], output_dir: str, create_dirs:bool=False, remove_duplicates:bool=False, short_dir_names:bool=False) -> None:
     num_total = len(filenames)
     num_current = 0
     for file_path in filenames:
         try:
-            original_file_path = file_path
-            (date_str, dir_str) = get_date_str(original_file_path, short_dir_names)
             original_file_path_str = file_path
+            (date_str, dir_str) = get_date_str(original_file_path_str, short_dir_names)
             new_file_path_str = output_dir
 
             original_file_path = pathlib.PurePath(file_path)
