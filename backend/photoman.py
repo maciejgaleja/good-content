@@ -2,12 +2,13 @@ import argparse
 import logging
 import sys
 import os
+from typing import List
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(
     os.path.realpath(__file__)))+os.sep+"backend"+os.sep)
 
 
-def setup_logging(verbose=True):
+def setup_logging(verbose: bool =True) -> None:
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
 
@@ -21,7 +22,7 @@ def setup_logging(verbose=True):
     root.addHandler(ch)
 
 
-def format_extensions(extensions):
+def format_extensions(extensions: List[str]) -> List[str]:
     full_extensions = []
     for extension in extensions:
         full_extensions.append(extension.upper())
@@ -29,15 +30,15 @@ def format_extensions(extensions):
     return full_extensions
 
 
-def filter_by_extension(input, extensions):
+def filter_by_extension(input: List[str], extensions: List[str]) -> List[str]:
     output = []
-    for file in input:
-        if file.endswith(tuple(extensions)):
-            output.append(os.path.realpath(file))
+    for filename in input:
+        if filename.endswith(tuple(extensions)):
+            output.append(os.path.realpath(filename))
     return output
 
 
-def get_file_list(start_dir, extensions, recursive=False):
+def get_file_list(start_dir: str, extensions: List[str], recursive:bool=False) -> List[str]:
     full_dir = os.path.realpath(start_dir)
     full_extensions = format_extensions(extensions)
     logging.debug("Getting file list:")
@@ -64,7 +65,7 @@ def get_file_list(start_dir, extensions, recursive=False):
     return files
 
 
-def main(argv):
+def main(argv: List[str]) -> None:
     import backend
     import backend.photoman as photoman
     import backend.utilities as utilities

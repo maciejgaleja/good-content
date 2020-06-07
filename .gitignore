@@ -1,6 +1,10 @@
 backend/utilities/__pycache__/
-launcher/
-*.pyc
+backend/.mypy_cache/
 backend/build/
 backend/dist/mmm.exe
+
+.mypy_cache/
+
+launcher/
+*.pyc
 test/
