@@ -11,11 +11,18 @@ import subprocess
 exifread.logger.disabled = True
 date_str_default = "1970:01:01 00:00:00"
 
+
 class FileIsADuplicate(Exception):
     pass
 
+
+class FFMpegNotFound(Exception):
+    pass
+
+
 def parse_date_str(date_str):
-    date_formats = ["%Y:%m:%d %H:%M:%S", "%d/%m/%Y %H:%M", "%Y-%m-%d %H:%M:%S ","%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S.%fZ"]
+    date_formats = ["%Y:%m:%d %H:%M:%S", "%d/%m/%Y %H:%M",
+                    "%Y-%m-%d %H:%M:%S ", "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S.%fZ"]
     date = None
     for date_format in date_formats:
         try:
@@ -25,22 +32,30 @@ def parse_date_str(date_str):
             continue
     return date
 
-def get_date_str(filename):
+
+def get_date_str(filename, use_short_name):
     if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
-        ret = get_date_str_image(filename)
+        ret = get_date_str_image(filename, use_short_name)
     if(filename.upper().endswith(".AVI")
-        or filename.upper().endswith(".MP4")
-        or filename.upper().endswith(".MOV")
-        or filename.upper().endswith(".3GP")
-        or filename.upper().endswith(".M4V")
-        or filename.upper().endswith(".MPG")):
+            or filename.upper().endswith(".MP4")
+            or filename.upper().endswith(".MOV")
+            or filename.upper().endswith(".3GP")
+            or filename.upper().endswith(".M4V")
+            or filename.upper().endswith(".MPG")):
         ret = get_date_str_video(filename)
     return ret
 
+
 def get_date_str_video(filename):
     try:
-        ffprobe_out = subprocess.run(["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        ffprobe_str = ffprobe_out.stdout.decode("utf-8") + "\n" + ffprobe_out.stderr.decode("utf-8")
+        ffprobe_out = subprocess.run(
+            ["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except FileNotFoundError:  # pragma: no cover
+        raise FFMpegNotFound
+
+    try:
+        ffprobe_str = ffprobe_out.stdout.decode(
+            "utf-8") + "\n" + ffprobe_out.stderr.decode("utf-8")
         ffprobe_lines = ffprobe_str.split("\n")
         dates = []
         for line in ffprobe_lines:
@@ -54,7 +69,8 @@ def get_date_str_video(filename):
     date = parse_date_str(date_str)
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-video")
 
-def get_date_str_image(filename):
+
+def get_date_str_image(filename, use_short_name):
     f = open(filename, "rb")
     tags = exifread.process_file(f)
     try:
@@ -74,7 +90,12 @@ def get_date_str_image(filename):
 
     date = parse_date_str(date_str)
 
-    return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
+    if use_short_name:
+        ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
+    else:
+        ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
+
+    return ret
 
 
 def move_file(oldname, newname, create_dirs):
@@ -85,7 +106,7 @@ def move_file(oldname, newname, create_dirs):
     if not os.path.exists(newname):
         try:
             os.rename(oldname, newname)
-        except OSError:
+        except OSError:  # pragma: no cover
             shutil.move(oldname, newname)
     else:
         if not (oldname == newname):
@@ -97,13 +118,13 @@ def move_file(oldname, newname, create_dirs):
                 raise FileExistsError()
 
 
-def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False):
+def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=False, short_dir_names=False):
     num_total = len(filenames)
     num_current = 0
     for file_path in filenames:
         try:
             original_file_path = file_path
-            (date_str, dir_str) = get_date_str(original_file_path)
+            (date_str, dir_str) = get_date_str(original_file_path, short_dir_names)
             original_file_path_str = file_path
             new_file_path_str = output_dir
 
@@ -120,21 +141,30 @@ def rename_files(filenames, output_dir, create_dirs=False, remove_duplicates=Fal
                 else:
                     date_str_to_write = date_str
                 if name_suffix_n > 0:
-                    date_str_to_write = date_str_to_write + "_" + str(name_suffix_n)
+                    date_str_to_write = date_str_to_write + \
+                        "_" + str(name_suffix_n)
 
                 new_file_path_str = output_dir + date_str_to_write + extension.upper()
                 try:
-                    move_file(original_file_path_str, new_file_path_str, create_dirs)
-                    logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(original_file_path_str) + "\t-->\t" + new_file_path_str)
+                    move_file(original_file_path_str,
+                              new_file_path_str, create_dirs)
+                    logging.info("{:3.0f}".format(num_current*100/num_total) + "%\t" +
+                                 str(original_file_path_str) + "\t-->\t" + new_file_path_str)
                 except FileExistsError:
                     name_suffix_n += 1
                     continue
                 except FileIsADuplicate:
                     if remove_duplicates:
-                        logging.error("deleting {} ...".format(original_file_path_str))
+                        logging.error("deleting {} ...".format(
+                            original_file_path_str))
                         os.remove(original_file_path_str)
                 break
-        except:
-            logging.warning("{:3.0f}".format(num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
+        except KeyboardInterrupt:  # pragma: no cover
+            raise
+        except FFMpegNotFound as e:  # pragma: no cover
+            raise e
+        except:  # pragma: no cover
+            logging.warning("{:3.0f}".format(
+                num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
             logging.exception("ERROR")
         num_current = num_current + 1

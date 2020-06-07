@@ -1,8 +1,11 @@
+import argparse
 import logging
 import sys
-import utilities.rename
 import os
-import argparse
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(
+    os.path.realpath(__file__)))+os.sep+"backend"+os.sep)
+
 
 def setup_logging(verbose=True):
     root = logging.getLogger()
@@ -39,7 +42,8 @@ def get_file_list(start_dir, extensions, recursive=False):
     full_extensions = format_extensions(extensions)
     logging.debug("Getting file list:")
     logging.debug("\troot directory: {0}".format(full_dir))
-    logging.debug("\tsearching extensions: {0}".format(" ".join(full_extensions)))
+    logging.debug("\tsearching extensions: {0}".format(
+        " ".join(full_extensions)))
     logging.debug("\trecursive: {0}".format(recursive))
 
     all_candidates = []
@@ -55,21 +59,37 @@ def get_file_list(start_dir, extensions, recursive=False):
         for candidate in candinates:
             all_candidates.append(os.path.join(full_dir, candidate))
 
-
     files = filter_by_extension(all_candidates, full_extensions)
     logging.debug("\tFound files:\n\t\t{0}".format("\n\t\t".join(files)))
     return files
 
+
 def main(argv):
-    arg_parser = argparse.ArgumentParser(description="Rename images so that new name is its date/time taken.")
+    import backend
+    import backend.photoman as photoman
+    import backend.utilities as utilities
+    import backend.version as version
+    arg_parser = argparse.ArgumentParser(
+        description="Rename images so that new name is its date/time taken.")
     arg_parser.prog = "mmm"
-    arg_parser.add_argument("-v", "--verbose", action="store_true", help="be verbose")
-    arg_parser.add_argument("-C", "--directory", nargs=1, default=".", required=False, help="specify a working directory.", metavar="directory")
-    arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False, help="specify file extensions.", metavar="extensions", default=[])
-    arg_parser.add_argument("-r", "-R", "--recursive", action="store_true", help="find images recursively")
-    arg_parser.add_argument("-o", "--output", help="specify output directory", metavar="directory")
-    arg_parser.add_argument("-z", "--create-dirs", action="store_true", help="create separate directiories for each day and camera")
-    arg_parser.add_argument("-d", "--remove-duplicates", action="store_true", help="if a file is considered a duplicate, it will be deleted")
+    arg_parser.add_argument(
+        "-v", "--verbose", action="store_true", help="be verbose")
+    arg_parser.add_argument("-C", "--directory", nargs=1, default=".",
+                            required=False, help="specify a working directory.", metavar="directory")
+    arg_parser.add_argument("-e", "--extensions", action="append", nargs=1, required=False,
+                            help="specify file extensions.", metavar="extensions", default=[])
+    arg_parser.add_argument("-r", "-R", "--recursive",
+                            action="store_true", help="find images recursively")
+    arg_parser.add_argument(
+        "-o", "--output", help="specify output directory", metavar="directory")
+    arg_parser.add_argument("-z", "--create-dirs", action="store_true",
+                            help="create separate directiories for each day and camera")
+    arg_parser.add_argument("-d", "--remove-duplicates", action="store_true",
+                            help="if a file is considered a duplicate, it will be deleted")
+    arg_parser.add_argument("-s", "--short", action="store_true",
+                            help="use short directory names (date only)")
+
+    print("mmm v" + version.version)
 
     args = arg_parser.parse_args(args=argv)
 
@@ -88,14 +108,19 @@ def main(argv):
 
     if(args.output == None):
         args.output = args.directory[0]
-    files = get_file_list(args.directory[0], extensions_list, recursive=args.recursive)
+    files = get_file_list(
+        args.directory[0], extensions_list, recursive=args.recursive)
 
     output_path = os.path.join(os.path.realpath(args.output), "")
-    utilities.rename.rename_files(files, output_path, args.create_dirs, args.remove_duplicates)
+
+    try:
+        utilities.rename.rename_files(
+            files, output_path, args.create_dirs, args.remove_duplicates, args.short)
+    except utilities.rename.FFMpegNotFound:  # pragma: no cover
+        logging.error("Could not find ffprobe.")
+
     return
 
 
-
-
-if __name__ == '__main__':
-    main(sys.argv)
+if __name__ == '__main__':  # pragma: no cover
+    main(sys.argv[1:])
