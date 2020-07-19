@@ -68,7 +68,7 @@ def main(argv: List[str]) -> None:
 
     arg_parser = argparse.ArgumentParser(
         description="Rename images so that new name is its date/time taken.")
-    arg_parser.prog = "mmm"
+    arg_parser.prog = "photoman"
     arg_parser.add_argument(
         "-v", "--verbose", action="store_true", help="be verbose")
     arg_parser.add_argument("-C", "--directory", nargs=1, default=".",
