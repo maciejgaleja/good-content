@@ -1,7 +1,7 @@
-backend/utilities/__pycache__/
-backend/.mypy_cache/
-backend/build/
-backend/dist/mmm.exe
+photoman/utilities/__pycache__/
+photoman/.mypy_cache/
+photoman/build/
+photoman/dist/mmm.exe
 
 .mypy_cache/
 

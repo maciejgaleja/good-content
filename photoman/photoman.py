@@ -5,7 +5,7 @@ import os
 from typing import List
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(
-    os.path.realpath(__file__)))+os.sep+"backend"+os.sep)
+    os.path.realpath(__file__)))+os.sep+"photoman"+os.sep)
 
 
 def setup_logging(verbose: bool =True) -> None:
@@ -66,10 +66,9 @@ def get_file_list(start_dir: str, extensions: List[str], recursive:bool=False) -
 
 
 def main(argv: List[str]) -> None:
-    import backend
-    import backend.photoman as photoman
-    import backend.utilities as utilities
-    import backend.version as version
+    import photoman.photoman as photoman
+    import photoman.utilities as utilities
+    import photoman.version as version
     arg_parser = argparse.ArgumentParser(
         description="Rename images so that new name is its date/time taken.")
     arg_parser.prog = "mmm"
