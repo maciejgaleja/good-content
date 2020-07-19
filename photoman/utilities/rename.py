@@ -107,7 +107,7 @@ def get_date_str_image(filename: str, use_short_name: bool) -> Tuple[str, str]:
     return ret
 
 def get_date_str_rw2(filename: str) -> Tuple[str, str]:
-    data: str = None
+    data: str = ""
 
     with open(filename, 'rb') as f:
         f.seek(0x0E46)

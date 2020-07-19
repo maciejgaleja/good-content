@@ -3,9 +3,6 @@ import logging
 import sys
 import os
 from typing import List
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-sys.path.append(os.path.dirname(os.path.dirname(
-    os.path.realpath(__file__)))+os.sep+"backend"+os.sep)
 
 
 def setup_logging(verbose: bool =True) -> None:
@@ -66,10 +63,9 @@ def get_file_list(start_dir: str, extensions: List[str], recursive:bool=False) -
 
 
 def main(argv: List[str]) -> None:
-    import backend
-    import backend.photoman as photoman
-    import backend.utilities as utilities
-    import backend.version as version
+    import photoman.photoman as photoman
+    import photoman.utilities as utilities
+
     arg_parser = argparse.ArgumentParser(
         description="Rename images so that new name is its date/time taken.")
     arg_parser.prog = "mmm"
@@ -90,11 +86,13 @@ def main(argv: List[str]) -> None:
     arg_parser.add_argument("-s", "--short", action="store_true",
                             help="use short directory names (date only)")
 
-    print("mmm v" + version.version)
-
     args = arg_parser.parse_args(args=argv)
 
     setup_logging(args.verbose)
+
+    if (len(argv) == 0) or (len(args.extensions) == 0):
+        arg_parser.print_help(sys.stderr)
+        sys.exit(1)
 
     extensions_list = []
     for string_list in args.extensions:
