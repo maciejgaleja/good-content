@@ -8,3 +8,5 @@ photoman/dist/mmm.exe
 launcher/
 *.pyc
 test/
+photoman.egg-info/*
+dist/*
