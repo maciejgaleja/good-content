@@ -43,13 +43,15 @@ def parse_date_str(date_str: str) -> datetime:
 def get_date_str(filename: str, use_short_name: bool)-> Tuple[str, str]:
     if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
         ret = get_date_str_image(filename, use_short_name)
-    if(filename.upper().endswith(".AVI")
+    elif(filename.upper().endswith(".AVI")
             or filename.upper().endswith(".MP4")
             or filename.upper().endswith(".MOV")
             or filename.upper().endswith(".3GP")
             or filename.upper().endswith(".M4V")
             or filename.upper().endswith(".MPG")):
         ret = get_date_str_video(filename)
+    elif(filename.upper().endswith(".RW2")):
+        ret = get_date_str_rw2(filename)
     return ret
 
 
@@ -103,6 +105,18 @@ def get_date_str_image(filename: str, use_short_name: bool) -> Tuple[str, str]:
         ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
 
     return ret
+
+def get_date_str_rw2(filename: str) -> Tuple[str, str]:
+    data: str = None
+
+    with open(filename, 'rb') as f:
+        f.seek(0x0E46)
+        data = f.read(19).decode('utf-8')
+
+    date = parse_date_str(data)
+
+    return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
+
 
 
 def move_file(oldname: str, newname: str, create_dirs: bool) -> None:
