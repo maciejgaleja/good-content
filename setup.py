@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="photoman",
-    version="0.0.1",
+    version="1.0.1",
     author="Maciej Galeja",
     author_email="maciej.galeja@outlook.com",
     description="Photo files manager",
