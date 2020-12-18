@@ -109,7 +109,7 @@ def main(argv: List[str]) -> None:
 
     output_path = os.path.join(os.path.realpath(args.output), "")
 
-    import rename
+    import rename  # type: ignore
     try:
         rename.rename_files(
             files, output_path, args.create_dirs, args.remove_duplicates, args.short)
