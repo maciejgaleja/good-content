@@ -10,3 +10,6 @@ launcher/
 test/
 photoman.egg-info/*
 dist/*
+
+_*/
+.vscode/settings.json

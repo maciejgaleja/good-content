@@ -5,7 +5,7 @@ import os
 from typing import List
 
 
-def setup_logging(verbose: bool =True) -> None:
+def setup_logging(verbose: bool = True) -> None:
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
 
@@ -35,7 +35,7 @@ def filter_by_extension(input: List[str], extensions: List[str]) -> List[str]:
     return output
 
 
-def get_file_list(start_dir: str, extensions: List[str], recursive:bool=False) -> List[str]:
+def get_file_list(start_dir: str, extensions: List[str], recursive: bool = False) -> List[str]:
     full_dir = os.path.realpath(start_dir)
     full_extensions = format_extensions(extensions)
     logging.debug("Getting file list:")
@@ -63,7 +63,6 @@ def get_file_list(start_dir: str, extensions: List[str], recursive:bool=False) -
 
 
 def main(argv: List[str]) -> None:
-    import photoman.photoman as photoman
     import photoman.utilities as utilities
 
     arg_parser = argparse.ArgumentParser(
@@ -105,7 +104,7 @@ def main(argv: List[str]) -> None:
         if(len(extension) > 0):
             extensions_list.append(extension)
 
-    if(args.output == None):
+    if(args.output is None):
         args.output = args.directory[0]
     files = get_file_list(
         args.directory[0], extensions_list, recursive=args.recursive)
@@ -122,4 +121,4 @@ def main(argv: List[str]) -> None:
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main(sys.argv[1:])
+    raise ValueError
