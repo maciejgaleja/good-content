@@ -1,1 +1,1 @@
-from . import rename
+from . import rename  # noqa: F401

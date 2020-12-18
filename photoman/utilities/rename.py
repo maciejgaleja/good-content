@@ -1,13 +1,12 @@
 import logging
-import sys
-import exifread # type: ignore
+import exifread  # type: ignore
 from datetime import datetime
 import pathlib
 import os
 import shutil
 import filecmp
 import subprocess
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 
 exifread.logger.disabled = True
 date_str_default = "1970:01:01 00:00:00"
@@ -40,7 +39,7 @@ def parse_date_str(date_str: str) -> datetime:
     return date
 
 
-def get_date_str(filename: str, use_short_name: bool)-> Tuple[str, str]:
+def get_date_str(filename: str, use_short_name: bool) -> Tuple[str, str]:
     if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
         ret = get_date_str_image(filename, use_short_name)
     elif(filename.upper().endswith(".AVI")
@@ -55,7 +54,7 @@ def get_date_str(filename: str, use_short_name: bool)-> Tuple[str, str]:
     return ret
 
 
-def get_date_str_video(filename: str) -> Tuple[str,str]:
+def get_date_str_video(filename: str) -> Tuple[str, str]:
     try:
         ffprobe_out = subprocess.run(
             ["ffprobe", filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -72,7 +71,7 @@ def get_date_str_video(filename: str) -> Tuple[str,str]:
                 dates.append(":".join(line.split(":")[1:]).strip())
 
         date_str = dates[0]
-    except:
+    except:  # noqa: E722
         date_str = date_str_default
 
     date = parse_date_str(date_str)
@@ -102,9 +101,11 @@ def get_date_str_image(filename: str, use_short_name: bool) -> Tuple[str, str]:
     if use_short_name:
         ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
     else:
-        ret = (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d") + "-" + model_name)
+        ret = (date.strftime("%Y%m%d_%H%M%S"),
+               date.strftime("%Y-%m-%d") + "-" + model_name)
 
     return ret
+
 
 def get_date_str_rw2(filename: str) -> Tuple[str, str]:
     data: str = ""
@@ -116,7 +117,6 @@ def get_date_str_rw2(filename: str) -> Tuple[str, str]:
     date = parse_date_str(data)
 
     return (date.strftime("%Y%m%d_%H%M%S"), date.strftime("%Y-%m-%d"))
-
 
 
 def move_file(oldname: str, newname: str, create_dirs: bool) -> None:
@@ -139,13 +139,14 @@ def move_file(oldname: str, newname: str, create_dirs: bool) -> None:
                 raise FileExistsError()
 
 
-def rename_files(filenames: List[str], output_dir: str, create_dirs:bool=False, remove_duplicates:bool=False, short_dir_names:bool=False) -> None:
+def rename_files(filenames: List[str], output_dir: str, create_dirs: bool = False, remove_duplicates: bool = False, short_dir_names: bool = False) -> None:  # noqa: C901 E501
     num_total = len(filenames)
     num_current = 0
     for file_path in filenames:
         try:
             original_file_path_str = file_path
-            (date_str, dir_str) = get_date_str(original_file_path_str, short_dir_names)
+            (date_str, dir_str) = get_date_str(
+                original_file_path_str, short_dir_names)
             new_file_path_str = output_dir
 
             original_file_path = pathlib.PurePath(file_path)
@@ -183,7 +184,7 @@ def rename_files(filenames: List[str], output_dir: str, create_dirs:bool=False, 
             raise
         except FFMpegNotFound as e:  # pragma: no cover
             raise e
-        except:  # pragma: no cover
+        except:  # noqa: E722
             logging.warning("{:3.0f}".format(
                 num_current*100/num_total) + "%\t" + str(file_path) + "\t-->\t <skipping>")
             logging.exception("ERROR")
