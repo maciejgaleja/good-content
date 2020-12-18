@@ -33,7 +33,7 @@ jobs:
         flake8 photoman --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Lint with mypy
       run: |
-        mypy --config-file config.mypy photoman/photoman.py
+        mypy --config-file config.mypy photoman/__main__.py
     - name: Check if it starts
       run: |
-        python photoman/photoman.py
+        python photoman/__main__.py
