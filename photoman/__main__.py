@@ -3,7 +3,6 @@ import logging
 import sys
 import os
 from typing import List
-import rename
 
 
 def setup_logging(verbose: bool = True) -> None:
@@ -110,6 +109,7 @@ def main(argv: List[str]) -> None:
 
     output_path = os.path.join(os.path.realpath(args.output), "")
 
+    import rename
     try:
         rename.rename_files(
             files, output_path, args.create_dirs, args.remove_duplicates, args.short)
