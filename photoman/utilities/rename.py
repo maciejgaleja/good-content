@@ -40,17 +40,19 @@ def parse_date_str(date_str: str) -> datetime:
 
 
 def get_date_str(filename: str, use_short_name: bool) -> Tuple[str, str]:
-    if(filename.upper().endswith(".JPG") or filename.upper().endswith(".CR2")):
+    photo_extensions = ['.JPG', '.JPEG', '.CR2']
+    video_extensions = ['.AVI', '.MP4', '.MOV', '.3GP', '.M4V', '.MPG']
+    rw2_extensions = ['.RW2']
+    extension = os.path.splitext(filename)[1].upper()
+    assert len(extension) > 0
+    if extension in photo_extensions:
         ret = get_date_str_image(filename, use_short_name)
-    elif(filename.upper().endswith(".AVI")
-            or filename.upper().endswith(".MP4")
-            or filename.upper().endswith(".MOV")
-            or filename.upper().endswith(".3GP")
-            or filename.upper().endswith(".M4V")
-            or filename.upper().endswith(".MPG")):
+    elif extension in video_extensions:
         ret = get_date_str_video(filename)
-    elif(filename.upper().endswith(".RW2")):
+    elif extension in rw2_extensions:
         ret = get_date_str_rw2(filename)
+    else:
+        raise NotImplementedError
     return ret
 
 
