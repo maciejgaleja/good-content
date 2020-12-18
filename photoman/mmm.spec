@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['photoman.py'],
+a = Analysis(['__main__.py'],
              pathex=['D:\\projects\\good-content\\photoman'],
              binaries=[],
              datas=[],
