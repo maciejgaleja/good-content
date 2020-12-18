@@ -34,3 +34,6 @@ jobs:
     - name: Lint with mypy
       run: |
         mypy --config-file config.mypy photoman/photoman.py
+    - name: Check if it starts
+      run: |
+        python photoman/photoman.py
