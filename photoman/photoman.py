@@ -63,7 +63,7 @@ def get_file_list(start_dir: str, extensions: List[str], recursive: bool = False
 
 
 def main(argv: List[str]) -> None:
-    import photoman.utilities as utilities
+    import utilities
 
     arg_parser = argparse.ArgumentParser(
         description="Rename images so that new name is its date/time taken.")
