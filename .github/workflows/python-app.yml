@@ -36,4 +36,4 @@ jobs:
         mypy --config-file config.mypy photoman/__main__.py
     - name: Check if it starts
       run: |
-        python photoman/__main__.py
+        python photoman/__main__.py 2>&1 | grep 'usage: photoman'
