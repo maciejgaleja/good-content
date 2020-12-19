@@ -40,7 +40,7 @@ def parse_date_str(date_str: str) -> datetime:
 
 
 def get_date_str(filename: str, use_short_name: bool) -> Tuple[str, str]:
-    photo_extensions = ['.JPG', '.JPEG', '.CR2']
+    photo_extensions = ['.JPG', '.JPEG', '.CR2', '.DNG']
     video_extensions = ['.AVI', '.MP4', '.MOV', '.3GP', '.M4V', '.MPG']
     rw2_extensions = ['.RW2']
     extension = os.path.splitext(filename)[1].upper()
